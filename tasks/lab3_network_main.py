@@ -11,7 +11,12 @@ INPUT_FOLDER = ROOT / 'resources'
 file_input = INPUT_FOLDER / 'nodes.json'
 f = open(file_input, 'r')
 data = json.load(f)
-to_net=Network(data)
+nodes=[]
+for i in data:
+    nodes.append(i)
+for i in nodes:
+
+
 
 
 

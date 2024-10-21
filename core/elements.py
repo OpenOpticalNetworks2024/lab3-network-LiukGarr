@@ -108,10 +108,7 @@ class Line(object):
 
 class Network(object):
     def __init__(self, data):
-        self.point = []
-        self.data = data
-        for i in self.data:
-            self.point.append(i)
+        pass
 
     @property
     def nodes(self):
