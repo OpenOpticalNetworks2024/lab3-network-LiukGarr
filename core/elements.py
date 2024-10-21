@@ -2,6 +2,9 @@ import json
 
 class Signal_information(object):
     def __init__(self):
+        signal_pow = 0.0
+        noise_pow = 0.0
+        latency = 0.0
         pass
 
     @property
@@ -104,8 +107,11 @@ class Line(object):
 
 
 class Network(object):
-    def __init__(self):
-        pass
+    def __init__(self, data):
+        self.point = []
+        self.data = data
+        for i in self.data:
+            self.point.append(i)
 
     @property
     def nodes(self):
