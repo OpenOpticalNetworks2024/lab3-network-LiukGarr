@@ -12,9 +12,13 @@ file_input = INPUT_FOLDER / 'nodes.json'
 f = open(file_input, 'r')
 data = json.load(f)
 nodes=[]
+path=[]
 for i in data:
     nodes.append(i)
-for i in nodes:
+    path.append(data[i]['connected_nodes'])
+
+print(path)
+
 
 
 
