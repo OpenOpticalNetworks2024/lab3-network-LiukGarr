@@ -1,4 +1,7 @@
-import json
+#import json
+# nds variable for nodes
+
+
 
 class Signal_information(object):
     def __init__(self):
@@ -49,27 +52,32 @@ class Signal_information(object):
 
 
 class Node(object):
-    def __init__(self):
+    def __init__(self, lab_nds, pos, connected):
+        self._lab_nds = lab_nds
+        self._pos = pos
+        self._connected = connected
+        self._nextnds = {}
         pass
 
     @property
     def label(self):
-        pass
+        return self._lab_nds
 
     @property
     def position(self):
-        pass
+        return self._pos
 
     @property
     def connected_nodes(self):
-        pass
+        return self._connected
 
     @property
     def successive(self):
-        pass
+        return self._nextnds
 
     @successive.setter
-    def successive(self):
+    def successive(self, next_line):
+        self._nextnds = next_line
         pass
 
     def propagate(self):
@@ -77,23 +85,26 @@ class Node(object):
 
 
 class Line(object):
-    def __init__(self):
+    def __init__(self, lab_line, length):
+        self._lab_line = lab_line
+        self._length = length
         pass
 
     @property
     def label(self):
-        pass
+        return self._lab_line
 
     @property
     def length(self):
-        pass
+        return self._length
 
     @property
     def successive(self):
-        pass
+        return self._nextline
 
     @successive.setter
-    def successive(self):
+    def successive(self, next_nodes):
+        self._nextline = next_nodes
         pass
 
     def latency_generation(self):
@@ -108,15 +119,22 @@ class Line(object):
 
 class Network(object):
     def __init__(self, data):
-        pass
+        self._nodes ={}
+        self._lines = {}
+        for nds in data:
+            self._nodes[nds]=Node(nds, data[str(nds)]['position'],data[str(nds)]['connected_nodes'])
+        for nds in self._nodes:
+            for con_nds in self._nodes[nds].connected_nodes:
+                line = nds + con_nds
+                self._lines[line] = Line(line, 1)
 
-    @property
+
     def nodes(self):
-        pass
+        return self._nodes
 
     @property
     def lines(self):
-        pass
+        return self._lines
 
     def draw(self):
         pass
@@ -125,7 +143,6 @@ class Network(object):
     # as a list of node labels. Admissible path only if cross any node at most once
     def find_paths(self, label1, label2):
         pass
-
     # connect function set the successive attributes of all NEs as dicts
     # each node must have dict of lines and viceversa
     def connect(self):

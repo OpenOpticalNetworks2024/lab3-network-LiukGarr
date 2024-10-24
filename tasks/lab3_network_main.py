@@ -11,13 +11,8 @@ INPUT_FOLDER = ROOT / 'resources'
 file_input = INPUT_FOLDER / 'nodes.json'
 f = open(file_input, 'r')
 data = json.load(f)
-nodes=[]
-path=[]
-for i in data:
-    nodes.append(i)
-    path.append(data[i]['connected_nodes'])
+net = Network(data)
 
-print(path)
 
 
 
