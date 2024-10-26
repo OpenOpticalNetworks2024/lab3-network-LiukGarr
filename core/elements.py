@@ -1,4 +1,6 @@
 #import json
+import numpy as np
+import math
 # nds variable for nodes
 
 
@@ -85,9 +87,18 @@ class Node(object):
 
 
 class Line(object):
-    def __init__(self, lab_line, length):
+    def __init__(self, lab_line, pos1, pos2):
+        self._arr_1 = []
+        self._arr_2 = []
         self._lab_line = lab_line
-        self._length = length
+        self._arr_1 = pos1
+        self._arr_2 = pos2
+        #print(float(self._arr_1[0]), float(self._arr_1[1]))
+        diff_x = pow((float(self._arr_2[0]) - float(self._arr_1[0])), 2)
+        diff_y = pow((float(self._arr_2[1]) - float(self._arr_1[1])), 2)
+        #print(diff_x, diff_y)
+        self._length = math.sqrt(diff_x + diff_y)
+
         pass
 
     @property
@@ -132,13 +143,13 @@ class Network(object):
         for nds in self._nodes:
             for con_nds in self._nodes[nds].connected_nodes:
                 line = nds + con_nds
-                lst_linee.append(line)
-                self._lines[line] = Line(line, 1)
-                # print(f"lines: {self._lines[line].label}")
-                linee.append(self._lines[line].label)
-            nodi.append(self._nodes[nds].label)
+                #lst_linee.append(line)
+                pos1 = self._nodes[nds].position
+                pos2 = self._nodes[con_nds].position
+                self._lines[line] = Line(line, pos1, pos2)
+                #print(f"Nodo 1: {self._nodes[nds].label}, Nodo 2: {self._nodes[con_nds].label}")
+                #print(f"La distanza {self._lines[line].label} è {self._lines[line].length}'")
         #print(nodi, "\n", linee)
-        self.connect(nodi, linee)
     def nodes(self):
         return self._nodes
 
@@ -155,28 +166,31 @@ class Network(object):
         pass
     # connect function set the successive attributes of all NEs as dicts
     # each node must have dict of lines and viceversa
-    def connect(self, nodi, linee):
+    def connect(self):
         self._node2line = {}
         node2line = {}
         self._line2node = {}
         line2node = {}
-        for nds in nodi:
-            for lns in linee:
+        for nds in self._nodes:
+            for lns in self._lines:
                 char = lns[0]
                 if nds == char:
                     self._node2line.setdefault(nds, []).append(lns)
             node2line.setdefault(nds, []).append(self._node2line[nds])
         print(node2line)
-        for lns in linee:
-            char1 = lns[0]
+        for lns in self._lines:
+            #char1 = lns[0]
             char2 = lns[1]
-            for nds in nodi:
-                if nds == char1:
-                    n1 = nds
-                    self._line2node.setdefault(lns, []).insert(0, n1)
+            for nds in self._nodes:
+                #if nds == char1:
+                    #n1 = nds
+                    #self._line2node.setdefault(lns, []).insert(0, n1)
+                #if nds == char2:
+                    #n2 = nds
+                    #self._line2node.setdefault(lns, []).insert(1, n2)
                 if nds == char2:
-                    n2 = nds
-                    self._line2node.setdefault(lns, []).insert(1, n2)
+                    n = nds
+                    self._line2node.setdefault(lns, []).append(n)
             line2node.setdefault(lns, []).append(self._line2node[lns])
         print(line2node)
 
