@@ -11,7 +11,7 @@ INPUT_FOLDER = ROOT / 'resources'
 file_input = INPUT_FOLDER / 'nodes.json'
 f = open(file_input, 'r')
 data = json.load(f)
-net = Network(data).connect()
+net = Network(data).find_paths('A', 'B')
 
 
 

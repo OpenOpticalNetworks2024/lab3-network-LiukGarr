@@ -1,5 +1,4 @@
 #import json
-import numpy as np
 import math
 # nds variable for nodes
 
@@ -58,7 +57,6 @@ class Node(object):
         self._lab_nds = lab_nds
         self._pos = pos
         self._connected = connected
-        self._nextnds = {}
         pass
 
     @property
@@ -88,15 +86,16 @@ class Node(object):
 
 class Line(object):
     def __init__(self, lab_line, pos1, pos2):
+        self._nextlines = []
         self._arr_1 = []
         self._arr_2 = []
         self._lab_line = lab_line
         self._arr_1 = pos1
         self._arr_2 = pos2
-        #print(float(self._arr_1[0]), float(self._arr_1[1]))
+        # print(float(self._arr_1[0]), float(self._arr_1[1]))
         diff_x = pow((float(self._arr_2[0]) - float(self._arr_1[0])), 2)
         diff_y = pow((float(self._arr_2[1]) - float(self._arr_1[1])), 2)
-        #print(diff_x, diff_y)
+        # print(diff_x, diff_y)
         self._length = math.sqrt(diff_x + diff_y)
 
         pass
@@ -111,11 +110,11 @@ class Line(object):
 
     @property
     def successive(self):
-        return self._nextline
+        return self._nextlines
 
     @successive.setter
-    def successive(self, next_nodes):
-        self._nextline = next_nodes
+    def successive(self, next_node):
+        self._nextlines = next_node
         pass
 
     def latency_generation(self):
@@ -144,12 +143,13 @@ class Network(object):
             for con_nds in self._nodes[nds].connected_nodes:
                 line = nds + con_nds
                 #lst_linee.append(line)
-                pos1 = self._nodes[nds].position
-                pos2 = self._nodes[con_nds].position
-                self._lines[line] = Line(line, pos1, pos2)
+                #pos1 = self._nodes[nds].position
+                #pos2 = self._nodes[con_nds].position
+                self._lines[line] = Line(line, self._nodes[nds].position, self._nodes[con_nds].position)
                 #print(f"Nodo 1: {self._nodes[nds].label}, Nodo 2: {self._nodes[con_nds].label}")
-                #print(f"La distanza {self._lines[line].label} è {self._lines[line].length}'")
+                #print(f"La distanza {self._lines[line].label} è {self._lines[line].length} meters'")
         #print(nodi, "\n", linee)
+        self.connect()
     def nodes(self):
         return self._nodes
 
@@ -163,6 +163,15 @@ class Network(object):
     # find_paths: given two node labels, returns all paths that connect the 2 nodes
     # as a list of node labels. Admissible path only if cross any node at most once
     def find_paths(self, label1, label2):
+        first_node = label1
+        last_node = label2
+        b_stop = False
+        for nds in self._node2line:
+            if nds == first_node:
+                #print(f"Le linee attaccate a {self._first_node} sono {self._node2line[nds]}")
+                b_stop = True
+        if not b_stop:
+            print("Invalid node")
         pass
     # connect function set the successive attributes of all NEs as dicts
     # each node must have dict of lines and viceversa
@@ -176,8 +185,8 @@ class Network(object):
                 char = lns[0]
                 if nds == char:
                     self._node2line.setdefault(nds, []).append(lns)
-            node2line.setdefault(nds, []).append(self._node2line[nds])
-        print(node2line)
+            #node2line.setdefault(nds, []).append(self._node2line[nds])
+        #print(node2line)
         for lns in self._lines:
             #char1 = lns[0]
             char2 = lns[1]
@@ -191,9 +200,8 @@ class Network(object):
                 if nds == char2:
                     n = nds
                     self._line2node.setdefault(lns, []).append(n)
-            line2node.setdefault(lns, []).append(self._line2node[lns])
-        print(line2node)
-
+            #line2node.setdefault(lns, []).append(self._line2node[lns])
+        #print(line2node)
         pass
 
     # propagate signal_information through path specified in it
