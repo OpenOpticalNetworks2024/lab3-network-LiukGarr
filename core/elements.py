@@ -119,16 +119,26 @@ class Line(object):
 
 class Network(object):
     def __init__(self, data):
-        self._nodes ={}
+        self._nodes = {}
+        nodi = []
+        linee = []
+        lst_linee = []
         self._lines = {}
         for nds in data:
             self._nodes[nds]=Node(nds, data[str(nds)]['position'],data[str(nds)]['connected_nodes'])
+            #nodi.setdefault(nds, []).extend((self._nodes[nds].label, self._nodes[nds].connected_nodes, self._nodes[nds].position))
+            #print(nodi[nds])
+            #print(f"label: {self._nodes[nds].label}, pos: {self._nodes[nds].position}, connection: {self._nodes[nds].connected_nodes}")
         for nds in self._nodes:
             for con_nds in self._nodes[nds].connected_nodes:
                 line = nds + con_nds
+                lst_linee.append(line)
                 self._lines[line] = Line(line, 1)
-
-
+                # print(f"lines: {self._lines[line].label}")
+                linee.append(self._lines[line].label)
+            nodi.append(self._nodes[nds].label)
+        #print(nodi, "\n", linee)
+        self.connect(nodi, linee)
     def nodes(self):
         return self._nodes
 
@@ -145,7 +155,31 @@ class Network(object):
         pass
     # connect function set the successive attributes of all NEs as dicts
     # each node must have dict of lines and viceversa
-    def connect(self):
+    def connect(self, nodi, linee):
+        self._node2line = {}
+        node2line = {}
+        self._line2node = {}
+        line2node = {}
+        for nds in nodi:
+            for lns in linee:
+                char = lns[0]
+                if nds == char:
+                    self._node2line.setdefault(nds, []).append(lns)
+            node2line.setdefault(nds, []).append(self._node2line[nds])
+        print(node2line)
+        for lns in linee:
+            char1 = lns[0]
+            char2 = lns[1]
+            for nds in nodi:
+                if nds == char1:
+                    n1 = nds
+                    self._line2node.setdefault(lns, []).insert(0, n1)
+                if nds == char2:
+                    n2 = nds
+                    self._line2node.setdefault(lns, []).insert(1, n2)
+            line2node.setdefault(lns, []).append(self._line2node[lns])
+        print(line2node)
+
         pass
 
     # propagate signal_information through path specified in it
