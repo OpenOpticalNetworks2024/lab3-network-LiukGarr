@@ -13,6 +13,7 @@ file_input = INPUT_FOLDER / 'nodes.json'
 f = open(file_input, 'r')
 data = json.load(f)
 net = Network(data).find_paths('E', 'B') #Lista dei nodi da 1 a 2
+draw = Network(data).draw()
 
 
 

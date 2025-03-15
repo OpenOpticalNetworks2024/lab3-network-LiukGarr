@@ -1,10 +1,9 @@
 # import json
 import math
-
+from core.parameters import c
+import matplotlib.pyplot as plt
 
 # nds variable for nodes
-
-
 class Signal_information(object):
     def __init__(self, path):
         self._signal_pow = 1e-3
@@ -122,13 +121,13 @@ class Line(object):
         pass
 
     def latency_generation(self):
-        pass
+        latency_gen = self._length / (c * 2 / 3)
+        return latency_gen
 
-    def noise_generation(self):
-        sig_pow = Signal_information().signal_power
-        noise = 1e-9*self.length*sig_pow
+    def noise_generation(self, signal_power):
+        noise = 1e-9*self.length*signal_power
         print(noise)
-        pass
+        return noise
 
     def propagate(self):
         pass
@@ -169,7 +168,24 @@ class Network(object):
         return self._lines
 
     def draw(self):
-        pass
+        for id_node in self._nodes:
+            x0 = self._nodes[id_node].position[0]
+            y0 = self._nodes[id_node].position[1]
+            plt.plot(x0, y0, 'yo', markersize=10)
+            plt.text(x0 + 20, y0 + 20, id_node)
+
+            for con_node in self._nodes[id_node].connected_nodes:
+                x1 = self._nodes[con_node].position[0]
+                y1 = self._nodes[con_node].position[1]
+                plt.plot([x0, x1], [y0, y1], 'r')
+
+        plt.title('Network')
+        plt.xlabel('X[m]')
+        plt.ticklabel_format(style='sci', axis='x', scilimits=(0, 0))
+        plt.ylabel('Y[m]')
+        plt.ticklabel_format(style='sci', axis='y', scilimits=(0, 0))
+        plt.grid()
+        plt.show()
 
     # find_paths: given two node labels, returns all paths that connect the 2 nodes
     # as a list of node labels. Admissible path only if cross any node at most once
@@ -228,8 +244,8 @@ class Network(object):
                                                                                  self._line2node[next_lns1][0] +
                                                                                  self._line2node[next_lns2][0] +
                                                                                  self._line2node[next_lns3][0])
-            print(Signal_information(paths).path)
-            #print(paths)
+            #print(Signal_information(paths).path)
+            print(paths)
 
     pass
 
