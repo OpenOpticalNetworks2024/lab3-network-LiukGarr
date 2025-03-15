@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from pathlib import Path
 from core.elements import Network
+from core.elements import Signal_information
 
 # Exercise Lab3: Network
 ROOT = Path(__file__).parent.parent
@@ -11,7 +12,7 @@ INPUT_FOLDER = ROOT / 'resources'
 file_input = INPUT_FOLDER / 'nodes.json'
 f = open(file_input, 'r')
 data = json.load(f)
-net = Network(data).find_paths('E', 'B')
+net = Network(data).find_paths('E', 'B') #Lista dei nodi da 1 a 2
 
 
 

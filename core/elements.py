@@ -6,51 +6,54 @@ import math
 
 
 class Signal_information(object):
-    def __init__(self):
-        signal_pow = 0.0
-        noise_pow = 0.0
-        latency = 0.0
+    def __init__(self, path):
+        self._signal_pow = 1e-3
+        self._noise_pow = 0.0
+        self._latency = 0.0
+        self._path = []
+        self._path.append(path)
         pass
 
     @property
     def signal_power(self):
-        pass
+        return self._signal_pow
 
-    def update_signal_power(self):
-        pass
+    def update_signal_power(self, increment_sp):
+        self._signal_pow += increment_sp
 
     @property
     def noise_power(self):
-        pass
+        return self._noise_pow
 
     @noise_power.setter
-    def noise_power(self):
-        pass
+    def noise_power(self, np):
+        self._noise_pow = np
 
-    def update_noise_power(self):
-        pass
+    def update_noise_power(self, increment_np):
+        self._noise_pow += increment_np
 
     @property
     def latency(self):
-        pass
+        return self._latency
 
     @latency.setter
-    def latency(self):
-        pass
+    def latency(self, lat):
+        self._latency = lat
 
-    def update_latency(self):
-        pass
+    def update_latency(self, increment_lat):
+        self._latency += increment_lat
 
     @property
     def path(self):
-        pass
+        return self._path
 
     @path.setter
-    def path(self):
-        pass
+    def path(self, selected_path):
+        self._path = selected_path
 
     def update_path(self):
-        pass
+        tmp_list_path = [self._path[0][1:]]
+        self._path = tmp_list_path
 
 
 class Node(object):
@@ -122,6 +125,9 @@ class Line(object):
         pass
 
     def noise_generation(self):
+        sig_pow = Signal_information().signal_power
+        noise = 1e-9*self.length*sig_pow
+        print(noise)
         pass
 
     def propagate(self):
@@ -222,7 +228,8 @@ class Network(object):
                                                                                  self._line2node[next_lns1][0] +
                                                                                  self._line2node[next_lns2][0] +
                                                                                  self._line2node[next_lns3][0])
-            print(paths)
+            print(Signal_information(paths).path)
+            #print(paths)
 
     pass
 
