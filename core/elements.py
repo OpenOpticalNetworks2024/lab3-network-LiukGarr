@@ -1,16 +1,19 @@
 # import json
+import pandas as pd
 import math
 from core.parameters import c
+from core.math_utils import snr
 import matplotlib.pyplot as plt
+
+arrow = '->'
 
 # nds variable for nodes
 class Signal_information(object):
     def __init__(self, path):
         self._signal_pow = 1e-3
-        self._noise_pow = 0.0
+        self._noise_pow = 1e-3
         self._latency = 0.0
-        self._path = []
-        self._path.append(path)
+        self._path = path
         pass
 
     @property
@@ -159,6 +162,24 @@ class Network(object):
                 # print(f"La distanza {self._lines[line].label} è {self._lines[line].length} meters'")
         # print(nodi, "\n", linee)
         self.connect()
+        path_separ = "->"
+        tabel = []
+        column_list = ["path", "total latency", "total noise", "SNR [dB]"]
+
+        for id_node1 in self._nodes:
+            for id_node2 in self._nodes:
+                if id_node1 != id_node2:
+                    for path in self.find_paths(id_node1, id_node2):
+                        sign_info = Signal_information(path)
+                        # self.probe(sign_info)
+                        snr_evaluated = snr(sign_info.signal_power,sign_info.noise_power)
+                        row_list = [path_separ.join(path), sign_info.latency, sign_info.noise_power,
+                                    snr_evaluated]
+                        tabel.append(row_list)
+        df = pd.DataFrame(tabel, columns=column_list)
+        print(df)
+        #self._weighted_paths = pd.DataFrame(tabel, columns=column_list)
+        #self._weighted_paths = self._weighted_paths.set_index("path", drop=False)
 
     def nodes(self):
         return self._nodes
@@ -245,9 +266,9 @@ class Network(object):
                                                                                  self._line2node[next_lns2][0] +
                                                                                  self._line2node[next_lns3][0])
             #print(Signal_information(paths).path)
-            print(paths)
-
-    pass
+            #print(paths)
+            #self.propagate()
+            return paths
 
     # connect function set the successive attributes of all NEs as dicts
     # each node must have dict of lines and viceversa
