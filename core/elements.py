@@ -3,16 +3,17 @@ import pandas as pd
 import math
 from core.parameters import c
 from core.math_utils import snr
+from decimal import Decimal
 import matplotlib.pyplot as plt
 
 arrow = '->'
 
 # nds variable for nodes
 class Signal_information(object):
-    def __init__(self, path):
-        self._signal_pow = 1e-3
-        self._noise_pow = 1e-3
-        self._latency = 0.0
+    def __init__(self, sp, sl, sn, path):
+        self._signal_pow = sp
+        self._noise_pow = sn
+        self._latency = sl
         self._path = path
         pass
 
@@ -32,7 +33,7 @@ class Signal_information(object):
         self._noise_pow = np
 
     def update_noise_power(self, increment_np):
-        self._noise_pow += increment_np
+        self._noise_pow = self._noise_pow + increment_np
 
     @property
     def latency(self):
@@ -43,7 +44,7 @@ class Signal_information(object):
         self._latency = lat
 
     def update_latency(self, increment_lat):
-        self._latency += increment_lat
+        self._latency = self._latency + increment_lat
 
     @property
     def path(self):
@@ -103,7 +104,6 @@ class Line(object):
         diff_y = pow((float(self._arr_2[1]) - float(self._arr_1[1])), 2)
         # print(diff_x, diff_y)
         self._length = math.sqrt(diff_x + diff_y)
-
         pass
 
     @property
@@ -123,13 +123,13 @@ class Line(object):
         self._nextlines = next_node
         pass
 
-    def latency_generation(self):
-        latency_gen = self._length / (c * 2 / 3)
+    def latency_generation(self, length_line):
+        latency_gen = length_line / (c * 2 / 3)
         return latency_gen
 
-    def noise_generation(self, signal_power):
-        noise = 1e-9*self.length*signal_power
-        print(noise)
+    def noise_generation(self, signal_power, length_line):
+        noise = 1e-9*length_line*signal_power
+        #print(noise)
         return noise
 
     def propagate(self):
@@ -170,14 +170,17 @@ class Network(object):
             for id_node2 in self._nodes:
                 if id_node1 != id_node2:
                     for path in self.find_paths(id_node1, id_node2):
-                        sign_info = Signal_information(path)
+                        sign_info = Signal_information(1e-3,0.0, 0.0, path)
+                        self.propagate(sign_info, path)
                         # self.probe(sign_info)
-                        snr_evaluated = snr(sign_info.signal_power,sign_info.noise_power)
-                        row_list = [path_separ.join(path), sign_info.latency, sign_info.noise_power,
+                        snr_evaluated = round(snr(sign_info.signal_power, sign_info.noise_power),3)
+                        latency_eng = "{:.3e}".format(sign_info.latency)
+                        noisepow_eng = "{:.3e}".format(sign_info.noise_power)
+                        row_list = [path_separ.join(path), latency_eng, noisepow_eng,
                                     snr_evaluated]
                         tabel.append(row_list)
         df = pd.DataFrame(tabel, columns=column_list)
-        print(df)
+        print('Dataframe of all possible paths between all possible nodes: \n', df)
         #self._weighted_paths = pd.DataFrame(tabel, columns=column_list)
         #self._weighted_paths = self._weighted_paths.set_index("path", drop=False)
 
@@ -266,9 +269,10 @@ class Network(object):
                                                                                  self._line2node[next_lns2][0] +
                                                                                  self._line2node[next_lns3][0])
             #print(Signal_information(paths).path)
-            #print(paths)
+            #print(f"Paths between {label1} and {label2}: \n", paths)
             #self.propagate()
             return paths
+            #pass
 
     # connect function set the successive attributes of all NEs as dicts
     # each node must have dict of lines and viceversa
@@ -297,11 +301,25 @@ class Network(object):
                 if nds == char2:
                     n = nds
                     self._line2node.setdefault(lns, []).append(n)
-            # line2node.setdefault(lns, []).append(self._line2node[lns])
-        # print(line2node)
+            line2node.setdefault(lns, []).append(self._line2node[lns])
+        print('Connection: \n', line2node)
         pass
 
     # propagate signal_information through path specified in it
     # and returns the modified spectral information
-    def propagate(self, signal_information):
+    def propagate(self, signal_information, path):
+        #self._lines[line] = Line(line, self._nodes[nds].position, self._nodes[con_nds].position)
+        print(path)
+        for x in range(len(path)-1):
+            line = path[x]+path[x+1]
+            lin_length = Line(line, self._nodes[path[x]].position, self._nodes[path[x+1]].position)
+            noise = lin_length.noise_generation(signal_information.signal_power, lin_length.length)
+            latency = lin_length.latency_generation(lin_length.length)
+            print(f"Partial results: Length: {'{:.3e}'.format(lin_length.length)}, noise: {'{:.3e}'.format(noise)}, latency: {'{:.3e}'.format(latency)}")
+            signal_information.update_noise_power(noise)
+            signal_information.update_latency(latency)
+            #print(f"Line {line} --> line length: {'{:.3e}'.format(lin_length.length)}m noise_pow: {'{:.3e}'.format(signal_information.noise_power)}mW; latency: {'{:.3e}'.format(signal_information.latency)}s")
+            #print(f"Nodo 1: {self._nodes[path[x]].label}, Nodo 2: {self._nodes[path[x+1]].label}")
+            #print(f"Length between {self._lines[line].label} is {self._lines[line].length} meters and noise power is {signal_information.noise_power} ")
+        #print(f"Length betwwen {node1} and {node2}: ", lin_length)
         pass
