@@ -162,25 +162,7 @@ class Network(object):
                 # print(f"La distanza {self._lines[line].label} è {self._lines[line].length} meters'")
         # print(nodi, "\n", linee)
         self.connect()
-        path_separ = "->"
-        tabel = []
-        column_list = ["path", "total latency", "total noise", "SNR [dB]"]
 
-        for id_node1 in self._nodes:
-            for id_node2 in self._nodes:
-                if id_node1 != id_node2:
-                    for path in self.find_paths(id_node1, id_node2):
-                        sign_info = Signal_information(1e-3,0.0, 0.0, path)
-                        self.propagate(sign_info, path)
-                        # self.probe(sign_info)
-                        snr_evaluated = round(snr(sign_info.signal_power, sign_info.noise_power),3)
-                        latency_eng = "{:.3e}".format(sign_info.latency)
-                        noisepow_eng = "{:.3e}".format(sign_info.noise_power)
-                        row_list = [path_separ.join(path), latency_eng, noisepow_eng,
-                                    snr_evaluated]
-                        tabel.append(row_list)
-        df = pd.DataFrame(tabel, columns=column_list)
-        print('Dataframe of all possible paths between all possible nodes: \n', df)
         #self._weighted_paths = pd.DataFrame(tabel, columns=column_list)
         #self._weighted_paths = self._weighted_paths.set_index("path", drop=False)
 
@@ -210,6 +192,26 @@ class Network(object):
         plt.ticklabel_format(style='sci', axis='y', scilimits=(0, 0))
         plt.grid()
         plt.show()
+
+        path_separ = "->"
+        tabel = []
+        column_list = ["path", "total latency", "total noise", "SNR [dB]"]
+
+        for id_node1 in self._nodes:
+            for id_node2 in self._nodes:
+                if id_node1 != id_node2:
+                    for path in self.find_paths(id_node1, id_node2):
+                        sign_info = Signal_information(1e-3, 0.0, 0.0, path)
+                        self.propagate(sign_info, path)
+                        # self.probe(sign_info)
+                        snr_evaluated = round(snr(sign_info.signal_power, sign_info.noise_power), 3)
+                        latency_eng = "{:.3e}".format(sign_info.latency)
+                        noisepow_eng = "{:.3e}".format(sign_info.noise_power)
+                        row_list = [path_separ.join(path), latency_eng, noisepow_eng,
+                                    snr_evaluated]
+                        tabel.append(row_list)
+        df = pd.DataFrame(tabel, columns=column_list)
+        print('Dataframe of all possible paths between all possible nodes: \n', df)
 
     # find_paths: given two node labels, returns all paths that connect the 2 nodes
     # as a list of node labels. Admissible path only if cross any node at most once
@@ -302,20 +304,20 @@ class Network(object):
                     n = nds
                     self._line2node.setdefault(lns, []).append(n)
             line2node.setdefault(lns, []).append(self._line2node[lns])
-        print('Connection: \n', line2node)
+        #print('Connection: \n', line2node)
         pass
 
     # propagate signal_information through path specified in it
     # and returns the modified spectral information
     def propagate(self, signal_information, path):
         #self._lines[line] = Line(line, self._nodes[nds].position, self._nodes[con_nds].position)
-        print(path)
+        #print(path)
         for x in range(len(path)-1):
             line = path[x]+path[x+1]
             lin_length = Line(line, self._nodes[path[x]].position, self._nodes[path[x+1]].position)
             noise = lin_length.noise_generation(signal_information.signal_power, lin_length.length)
             latency = lin_length.latency_generation(lin_length.length)
-            print(f"Partial results: Length: {'{:.3e}'.format(lin_length.length)}, noise: {'{:.3e}'.format(noise)}, latency: {'{:.3e}'.format(latency)}")
+            #print(f"Partial results: Length: {'{:.3e}'.format(lin_length.length)}, noise: {'{:.3e}'.format(noise)}, latency: {'{:.3e}'.format(latency)}")
             signal_information.update_noise_power(noise)
             signal_information.update_latency(latency)
             #print(f"Line {line} --> line length: {'{:.3e}'.format(lin_length.length)}m noise_pow: {'{:.3e}'.format(signal_information.noise_power)}mW; latency: {'{:.3e}'.format(signal_information.latency)}s")
