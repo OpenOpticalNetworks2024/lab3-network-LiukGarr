@@ -9,14 +9,14 @@ from core.elements import Signal_information
 # Exercise Lab3: Network
 ROOT = Path(__file__).parent.parent
 INPUT_FOLDER = ROOT / 'resources'
-file_input = INPUT_FOLDER / 'nodes.json'
+file_input = INPUT_FOLDER / 'network.json'
 f = open(file_input, 'r')
 data = json.load(f)
 net = Network(data)
-node1 = 'E'
-node2 = 'B'
-print(f"Path between {node1} and {node2}: \n", net.find_paths(node1, node2))
-draw = Network(data).draw() # return the dataframe once the figure is closed
+# node1 = 'E'
+# node2 = 'B'
+# print(f"Path between {node1} and {node2}: \n", net.find_paths(node1, node2))
+draw = Network(data).draw() # return the dataframe and the draw
 
 
 
