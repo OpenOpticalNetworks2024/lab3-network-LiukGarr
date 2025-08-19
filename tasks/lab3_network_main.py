@@ -13,17 +13,7 @@ file_input = INPUT_FOLDER / 'network.json'
 f = open(file_input, 'r')
 data = json.load(f)
 net = Network(data)
-# node1 = 'E'
-# node2 = 'B'
-# print(f"Path between {node1} and {node2}: \n", net.find_paths(node1, node2))
-draw = Network(data).draw() # return the dataframe and the draw
-
-
-
-
-
-
-
+draw = Network(data).draw()     # return the dataframe and the draw
 
 f.close()
 # Load the Network from the JSON file, connect nodes and lines in Network.
