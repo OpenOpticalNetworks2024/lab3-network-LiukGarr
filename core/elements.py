@@ -1,4 +1,3 @@
-# import json
 import pandas as pd
 import math
 from core.parameters import c
@@ -8,7 +7,7 @@ import matplotlib.pyplot as plt
 
 arrow = '->'
 
-# nds variable for nodes
+
 class Signal_information(object):
     def __init__(self, sp, sl, sn, path):
         self._signal_pow = sp
@@ -155,7 +154,6 @@ class Network(object):
         return self._lines
 
     def draw(self):
-        path_separ = "->"
         tabel = []
         column_list = ["path", "total latency", "total noise", "SNR [dB]"]
         # Data-frame construction
@@ -165,11 +163,10 @@ class Network(object):
                     for path in self.find_paths(id_node1, id_node2):
                         sign_info = Signal_information(1e-3, 0.0, 0.0, path)
                         self.propagate(sign_info, path)
-                        # self.probe(sign_info)
                         snr_evaluated = round(snr(sign_info.signal_power, sign_info.noise_power), 3)
                         latency_eng = "{:.3e}".format(sign_info.latency)
                         noisepow_eng = "{:.3e}".format(sign_info.noise_power)
-                        row_list = [path_separ.join(path), latency_eng, noisepow_eng,
+                        row_list = [arrow.join(path), latency_eng, noisepow_eng,
                                     snr_evaluated]
                         tabel.append(row_list)
         df = pd.DataFrame(tabel, columns=column_list)
